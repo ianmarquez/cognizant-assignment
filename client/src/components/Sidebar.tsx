@@ -1,9 +1,11 @@
 import React from 'react';
 import { Menu, Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
+import { ItemType } from 'antd/lib/menu/hooks/useItems';
+
 import '../styles/Sidebar.css';
 
-const menuItems = [
+const menuItems: Array<ItemType> = [
   { label: 'Function 1', key: 'function-1' },
   { label: 'Function 2', key: 'function-2' },
   { label: 'Function 3', key: 'function-3' },
