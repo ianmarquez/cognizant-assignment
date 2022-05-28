@@ -1,0 +1,24 @@
+{
+  "name": "mern-stack-template",
+  "version": "1.0.0",
+  "description": "contains a full stack of the mern template using docker",
+  "main": "index.js",
+  "scripts": {
+    "build": "docker-compose build",
+    "start": "docker-compose up",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ianmarquez/MERN-Template.git"
+  },
+  "keywords": [
+    "template"
+  ],
+  "author": "Ian Marquez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ianmarquez/MERN-Template/issues"
+  },
+  "homepage": "https://github.com/ianmarquez/MERN-Template#readme"
+}
