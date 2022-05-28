@@ -52,19 +52,17 @@ const Employees: React.FC = () => {
   async function fetchEmployees() {
     let employees: DataType[] = [];
     try {
-      const response: AxiosResponse = await axios.get('https://nphc-hr.free.beeceptor.com/employees');
-      const { data } = response;
+      const response: AxiosResponse = await axios.get('http://localhost:3001/v1/api/employees');
+      const { data } = response.data;
       employees = [...employees, ...data];
     } catch (err) {
       employees = [];
-      console.log(err);
     }
     updateData(employees);
-    return updateLoading(false);
+    updateLoading(false);
   }
 
   useEffect(()=> {
-    if (data)
     fetchEmployees();
   }, []);
 
