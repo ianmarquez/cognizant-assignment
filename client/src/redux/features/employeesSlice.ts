@@ -4,16 +4,18 @@ import { Employee } from '../../models/EmployeeModel';
 
 type SalaryFilter = {
   text: string;
-  value: string
+  value: string;
 }
 
-export interface EmployeeState {
-  employees: Employee[],
-  isLoading: boolean,
-  isErrorState: boolean,
-  message: string,
-  selectedEmployee: Employee | null,
-  salaryFilter: SalaryFilter[],
+export interface EmployeeTableState {
+  employees: Employee[];
+  isLoading: boolean;
+  isErrorState: boolean;
+  message: string;
+  selectedEmployee: Employee | null;
+  salaryFilter: SalaryFilter[];
+  deleteModalVisible: boolean;
+  updateModalVisible: boolean;
 }
 
 export const getEmployees = createAsyncThunk(
@@ -31,7 +33,7 @@ export const getEmployees = createAsyncThunk(
 
 export const deleteEmployee = createAsyncThunk(
   'employees/deleteEmployee',
-  async (id: number, { rejectWithValue }) => {
+  async (id: any | null, { rejectWithValue }) => {
     try {
       const response: AxiosResponse = await axios.delete(`http://localhost:3001/v1/api/employee/${id}`);
       const { data } = response.data;
@@ -60,7 +62,6 @@ const createSalaryFilters = (salaries: Array<number>): SalaryFilter[] => {
   const INCREMENT = 500;
   const floor = Math.round(salaryArr[0]/1000)*1000;
   const ceiling = Math.round(salaryArr[salaryArr.length - 1]/1000)*1000;
-  console.log(floor, ceiling);
   let current = floor;
   const filters: SalaryFilter[] = []
   while (current < ceiling) {
@@ -82,13 +83,34 @@ const employeeTableSlice = createSlice({
     message: '',
     selectedEmployee: null,
     salaryFilter: [],
+    deleteModalVisible: false,
+    updateModalVisible: false,
   },
-  reducers: {},
+  reducers: {
+    selectEmployee(state, action: any) {
+      state.selectedEmployee = action.payload;
+    },
+    clearSelectedEmployee(state) {
+      state.selectedEmployee = null;
+    },
+    openDeleteModal(state) {
+      state.deleteModalVisible = true;
+    },
+    closeDeleteModal(state) {
+      state.deleteModalVisible = false;
+    },
+    openUpdateModal(state) {
+      state.updateModalVisible = true;
+    },
+    closeUpdateModal(state) {
+      state.updateModalVisible = false;
+    }
+  },
   extraReducers: {
-    [getEmployees.pending.toString()]: (state: EmployeeState) => {
+    [getEmployees.pending.toString()]: (state: EmployeeTableState) => {
       state.isLoading = true
     },
-    [getEmployees.fulfilled.toString()]: (state: EmployeeState, action: any) => {
+    [getEmployees.fulfilled.toString()]: (state: EmployeeTableState, action: any) => {
       state.employees = action.payload;
       state.isLoading = false;
       state.isErrorState = false;
@@ -98,25 +120,34 @@ const employeeTableSlice = createSlice({
         state.salaryFilter = createSalaryFilters(salaries.sort());
       }
     },
-    [getEmployees.rejected.toString()]: (state: EmployeeState, action: any) => {
+    [getEmployees.rejected.toString()]: (state: EmployeeTableState, action: any) => {
       state.isLoading = false;
       state.isErrorState = true;
       state.message = action.payload.message;
     },
-    [deleteEmployee.pending.toString()]: (state: EmployeeState) => {
+    [deleteEmployee.pending.toString()]: (state: EmployeeTableState) => {
       state.isLoading = true
     },
-    [deleteEmployee.fulfilled.toString()]: (state: EmployeeState, action: any) => {
+    [deleteEmployee.fulfilled.toString()]: (state: EmployeeTableState, action: any) => {
       const { _id } = action.payload;
       state.isLoading = false;
+      state.selectedEmployee = null;
       state.employees = state.employees.filter((employee: Employee) => employee._id !== _id);
+      state.deleteModalVisible = false;
     },
-    [deleteEmployee.rejected.toString()]: (state: EmployeeState, action: any) => {
+    [deleteEmployee.rejected.toString()]: (state: EmployeeTableState, action: any) => {
       state.isLoading = false;
       state.isErrorState = true;
       state.message = action.payload.message;
     }
   }
 });
-
+export const {
+  selectEmployee,
+  clearSelectedEmployee,
+  openDeleteModal,
+  closeDeleteModal,
+  openUpdateModal,
+  closeUpdateModal,
+} = employeeTableSlice.actions
 export default employeeTableSlice.reducer;

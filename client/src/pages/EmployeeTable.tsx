@@ -1,13 +1,29 @@
 import React, { Dispatch, useEffect } from 'react';
-import { Table, Space, Button, Avatar } from 'antd';
+import { Table, Space, Button, Avatar, Modal } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import { Employee } from '../models/EmployeeModel';
 import { useDispatch, useSelector } from 'react-redux';
-import { getEmployees, deleteEmployee } from '../redux/features/employeesSlice'
+import {
+  getEmployees,
+  deleteEmployee,
+  selectEmployee,
+  openDeleteModal,
+  closeDeleteModal,
+  openUpdateModal,
+  closeUpdateModal,
+  EmployeeTableState } from '../redux/features/employeesSlice'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 const EmployeeTable: React.FC  = (): React.ReactElement => {
   const dispatch: Dispatch<any> = useDispatch();
-  const { isLoading: loading, employees, salaryFilter } = useSelector((state: any) => state.employees);
+  const {
+    isLoading: loading,
+    employees,
+    salaryFilter,
+    deleteModalVisible,
+    updateModalVisible,
+    selectedEmployee,
+  } = useSelector((state: any) => state.employees) as EmployeeTableState;
 
   useEffect(() => {
     dispatch(getEmployees());
@@ -51,19 +67,52 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
       sorter: (a, b) => a.salary - b.salary
     },
     {
-      title: 'Action',
       key: 'action',
+      width: 100,
       render: (_: any, record: Employee): React.ReactElement  => (
         <Space size="middle">
-          <Button onClick={() => {
-            dispatch(deleteEmployee(record._id));
-          }}>Delete</Button>
+          <Button 
+            shape='circle'
+            onClick={() => {
+              dispatch(selectEmployee(record));
+              dispatch(openDeleteModal());
+            }}
+            icon={<DeleteOutlined />}
+          />
+          <Button 
+            type='primary'
+            shape='circle'
+            onClick={() => {
+              dispatch(selectEmployee(record));
+              dispatch(openUpdateModal());
+            }}
+            icon={<EditOutlined />}
+          />
         </Space>
       )
     },
   ];
 
   return <>
+    <Modal
+      title="Are you sure you want to delete?"
+      visible={deleteModalVisible}
+      onOk={() => { dispatch(deleteEmployee(selectedEmployee?._id)) }}
+      confirmLoading={loading}
+      onCancel={() => { dispatch(closeDeleteModal()) }}
+    >
+      <p>Deleting {JSON.stringify(selectedEmployee?.full_name)}...</p>
+    </Modal>
+
+    <Modal
+      title="Update"
+      visible={updateModalVisible}
+      onOk={() => {  }}
+      confirmLoading={loading}
+      onCancel={() => { dispatch(closeUpdateModal()) }}
+    >
+      <p></p>
+    </Modal>
     <Table
     loading={loading}
       bordered={true}
