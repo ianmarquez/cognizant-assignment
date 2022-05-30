@@ -5,14 +5,14 @@ import { Employee } from '../models/EmployeeModel';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   getEmployees,
-  deleteEmployee,
   selectEmployee,
   openDeleteModal,
-  closeDeleteModal,
   openUpdateModal,
-  closeUpdateModal,
-  EmployeeTableState } from '../redux/features/employeesSlice'
+  EmployeeTableState
+} from '../redux/features/employeesSlice'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import DeleteModal from './DeleteModal';
+import UpdateForm from './UpdateForm';
 
 const EmployeeTable: React.FC  = (): React.ReactElement => {
   const dispatch: Dispatch<any> = useDispatch();
@@ -20,9 +20,6 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
     isLoading: loading,
     employees,
     salaryFilter,
-    deleteModalVisible,
-    updateModalVisible,
-    selectedEmployee,
   } = useSelector((state: any) => state.employees) as EmployeeTableState;
 
   useEffect(() => {
@@ -94,25 +91,8 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
   ];
 
   return <>
-    <Modal
-      title="Are you sure you want to delete?"
-      visible={deleteModalVisible}
-      onOk={() => { dispatch(deleteEmployee(selectedEmployee?._id)) }}
-      confirmLoading={loading}
-      onCancel={() => { dispatch(closeDeleteModal()) }}
-    >
-      <p>Deleting {JSON.stringify(selectedEmployee?.full_name)}...</p>
-    </Modal>
-
-    <Modal
-      title="Update"
-      visible={updateModalVisible}
-      onOk={() => {  }}
-      confirmLoading={loading}
-      onCancel={() => { dispatch(closeUpdateModal()) }}
-    >
-      <p></p>
-    </Modal>
+    <DeleteModal />
+    <UpdateForm />
     <Table
     loading={loading}
       bordered={true}

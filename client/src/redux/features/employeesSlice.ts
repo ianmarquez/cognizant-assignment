@@ -44,13 +44,13 @@ export const deleteEmployee = createAsyncThunk(
   },
 );
 
-export const createEmployee = createAsyncThunk(
-  'employees/deleteEmployee',
+export const updateEmployee = createAsyncThunk(
+  'employees/updateEmployee',
   async (body: Employee, { rejectWithValue }) => {
     try {
-      const response: AxiosResponse = await axios.post(`http://localhost:3001/v1/api/employee`);
-      const { data } = response.data;
-      return data;
+      const { _id } = body;
+      const response: AxiosResponse = await axios.put(`http://localhost:3001/v1/api/employee/${_id}`, body);
+      return { ...response.data, ...body };
     } catch (err) {
       rejectWithValue(err)
     }
@@ -109,6 +109,7 @@ const employeeTableSlice = createSlice({
   extraReducers: {
     [getEmployees.pending.toString()]: (state: EmployeeTableState) => {
       state.isLoading = true
+      state.message = '';
     },
     [getEmployees.fulfilled.toString()]: (state: EmployeeTableState, action: any) => {
       state.employees = action.payload;
@@ -127,6 +128,7 @@ const employeeTableSlice = createSlice({
     },
     [deleteEmployee.pending.toString()]: (state: EmployeeTableState) => {
       state.isLoading = true
+      state.message = '';
     },
     [deleteEmployee.fulfilled.toString()]: (state: EmployeeTableState, action: any) => {
       const { _id } = action.payload;
@@ -136,6 +138,29 @@ const employeeTableSlice = createSlice({
       state.deleteModalVisible = false;
     },
     [deleteEmployee.rejected.toString()]: (state: EmployeeTableState, action: any) => {
+      state.isLoading = false;
+      state.isErrorState = true;
+      state.message = action.payload.message;
+    },
+    [updateEmployee.pending.toString()]: (state: EmployeeTableState) => {
+      state.isLoading = true
+      state.message = '';
+    },
+    [updateEmployee.fulfilled.toString()]: (state: EmployeeTableState, action: any) => {
+      const { _id } = action.payload;
+      state.isLoading = false;
+      state.selectedEmployee = null;
+      const updatedEmployees: Employee[] = [];
+      state.employees.forEach((employee: Employee) => {
+        if(employee._id === _id) {
+          employee = { ...employee,  ...action.payload }
+        }
+        updatedEmployees.push(employee);
+      })
+      state.employees = updatedEmployees
+      state.updateModalVisible = false;
+    },
+    [updateEmployee.rejected.toString()]: (state: EmployeeTableState, action: any) => {
       state.isLoading = false;
       state.isErrorState = true;
       state.message = action.payload.message;
