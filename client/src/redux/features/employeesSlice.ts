@@ -29,6 +29,32 @@ export const getEmployees = createAsyncThunk(
   },
 );
 
+export const deleteEmployee = createAsyncThunk(
+  'employees/deleteEmployee',
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response: AxiosResponse = await axios.delete(`http://localhost:3001/v1/api/employee/${id}`);
+      const { data } = response.data;
+      return data;
+    } catch (err) {
+      rejectWithValue(err)
+    }
+  },
+);
+
+export const createEmployee = createAsyncThunk(
+  'employees/deleteEmployee',
+  async (body: Employee, { rejectWithValue }) => {
+    try {
+      const response: AxiosResponse = await axios.post(`http://localhost:3001/v1/api/employee`);
+      const { data } = response.data;
+      return data;
+    } catch (err) {
+      rejectWithValue(err)
+    }
+  },
+);
+
 const createSalaryFilters = (salaries: Array<number>): SalaryFilter[] => {
   const salaryArr = salaries.sort();
   const INCREMENT = 500;
@@ -67,10 +93,25 @@ const employeeTableSlice = createSlice({
       state.isLoading = false;
       state.isErrorState = false;
       state.message = '';
-      const salaries = action.payload.map((employee: Employee) => employee.salary);
-      state.salaryFilter = createSalaryFilters(salaries.sort())
+      if(action.payload && action.payload.length > 0) {
+        const salaries = action.payload.map((employee: Employee) => employee.salary);
+        state.salaryFilter = createSalaryFilters(salaries.sort());
+      }
     },
     [getEmployees.rejected.toString()]: (state: EmployeeState, action: any) => {
+      state.isLoading = false;
+      state.isErrorState = true;
+      state.message = action.payload.message;
+    },
+    [deleteEmployee.pending.toString()]: (state: EmployeeState) => {
+      state.isLoading = true
+    },
+    [deleteEmployee.fulfilled.toString()]: (state: EmployeeState, action: any) => {
+      const { _id } = action.payload;
+      state.isLoading = false;
+      state.employees = state.employees.filter((employee: Employee) => employee._id !== _id);
+    },
+    [deleteEmployee.rejected.toString()]: (state: EmployeeState, action: any) => {
       state.isLoading = false;
       state.isErrorState = true;
       state.message = action.payload.message;

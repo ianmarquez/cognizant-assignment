@@ -3,7 +3,7 @@ import { Table, Space, Button, Avatar } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import { Employee } from '../models/EmployeeModel';
 import { useDispatch, useSelector } from 'react-redux';
-import { getEmployees } from '../redux/features/employeesSlice'
+import { getEmployees, deleteEmployee } from '../redux/features/employeesSlice'
 
 const EmployeeTable: React.FC  = (): React.ReactElement => {
   const dispatch: Dispatch<any> = useDispatch();
@@ -55,7 +55,9 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
       key: 'action',
       render: (_: any, record: Employee): React.ReactElement  => (
         <Space size="middle">
-          <Button>Delete</Button>
+          <Button onClick={() => {
+            dispatch(deleteEmployee(record._id));
+          }}>Delete</Button>
         </Space>
       )
     },
