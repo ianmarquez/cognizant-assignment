@@ -16,6 +16,7 @@ export interface EmployeeTableState {
   salaryFilter: SalaryFilter[];
   deleteModalVisible: boolean;
   updateModalVisible: boolean;
+  uploadModalVisible: boolean;
 }
 
 export const getEmployees = createAsyncThunk(
@@ -33,7 +34,7 @@ export const getEmployees = createAsyncThunk(
 
 export const deleteEmployee = createAsyncThunk(
   'employees/deleteEmployee',
-  async (id: any | null, { rejectWithValue }) => {
+  async (id: string | undefined, { rejectWithValue }) => {
     try {
       const response: AxiosResponse = await axios.delete(`http://localhost:3001/v1/api/employee/${id}`);
       const { data } = response.data;
@@ -85,6 +86,7 @@ const employeeTableSlice = createSlice({
     salaryFilter: [],
     deleteModalVisible: false,
     updateModalVisible: false,
+    uploadModalVisible: false,
   },
   reducers: {
     selectEmployee(state, action: any) {
@@ -104,6 +106,12 @@ const employeeTableSlice = createSlice({
     },
     closeUpdateModal(state) {
       state.updateModalVisible = false;
+    },
+    openUploadModal(state) {
+      state.uploadModalVisible = true;
+    },
+    closeUploadModal(state) {
+      state.uploadModalVisible = false;
     }
   },
   extraReducers: {
@@ -174,5 +182,7 @@ export const {
   closeDeleteModal,
   openUpdateModal,
   closeUpdateModal,
+  closeUploadModal,
+  openUploadModal,
 } = employeeTableSlice.actions
 export default employeeTableSlice.reducer;

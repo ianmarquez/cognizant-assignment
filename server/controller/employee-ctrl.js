@@ -1,4 +1,6 @@
 const Employee = require('../models/employee-model');
+const parse = require('csv-parse').parse
+const fs = require('fs');
 
 const createBatchEmployees = async (req, res) => {
   const { body } = req;
@@ -15,6 +17,23 @@ const createBatchEmployees = async (req, res) => {
       success: true,
       message: 'Employees Created!',
     })
+  } catch (err) {
+    res.status(400).send({
+      success: false,
+      message: JSON.stringify(err),
+    });
+  }
+}
+
+const createBatchEmployeesV2 = async (req, res) => {
+  const { file } = req;
+  try {
+    if (!file) throw new Error('Invalid Parameter');
+    const data = fs.readFileSync(file.path);
+    parse(data, (err, records) => {
+      if (err) throw err;
+      res.status(200).json({ success: true, records });
+    });
   } catch (err) {
     res.status(400).send({
       success: false,
@@ -128,6 +147,7 @@ const getEmployees = async (req, res) => {
 }
 
 module.exports = {
+  createBatchEmployeesV2,
   createBatchEmployees,
   createEmployee,
   updateEmployee,

@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect } from 'react';
-import { Table, Space, Button, Avatar, Modal } from 'antd';
+import { Table, Space, Button, Avatar, Row, Col, Card, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import { Employee } from '../models/EmployeeModel';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,11 +8,13 @@ import {
   selectEmployee,
   openDeleteModal,
   openUpdateModal,
-  EmployeeTableState
-} from '../redux/features/employeesSlice'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+  EmployeeTableState,
+  openUploadModal
+} from '../redux/features/employeeTableSlice'
+import { DeleteOutlined, EditOutlined, ExportOutlined, SyncOutlined } from '@ant-design/icons';
 import DeleteModal from './DeleteModal';
 import UpdateForm from './UpdateForm';
+import UploadModal from './UploadModal';
 
 const EmployeeTable: React.FC  = (): React.ReactElement => {
   const dispatch: Dispatch<any> = useDispatch();
@@ -38,7 +40,7 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
       title: 'Id',
       dataIndex: '_id',
       key: '_id',
-      sorter: (a, b) => a._id - b._id
+      sorter: (a, b) => a._id.localeCompare(b._id)
     },
     {
       title: 'Name',
@@ -68,39 +70,66 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
       width: 100,
       render: (_: any, record: Employee): React.ReactElement  => (
         <Space size="middle">
-          <Button 
-            shape='circle'
-            onClick={() => {
-              dispatch(selectEmployee(record));
-              dispatch(openDeleteModal());
-            }}
-            icon={<DeleteOutlined />}
-          />
-          <Button 
-            type='primary'
-            shape='circle'
-            onClick={() => {
-              dispatch(selectEmployee(record));
-              dispatch(openUpdateModal());
-            }}
-            icon={<EditOutlined />}
-          />
+          <Tooltip title="Delete">
+            <Button 
+              shape='circle'
+              onClick={() => {
+                dispatch(selectEmployee(record));
+                dispatch(openDeleteModal());
+              }}
+              icon={<DeleteOutlined />}
+              danger
+              type="primary"
+            />
+          </Tooltip>
+          <Tooltip title="Update">
+            <Button 
+              type='primary'
+              shape='circle'
+              onClick={() => {
+                dispatch(selectEmployee(record));
+                dispatch(openUpdateModal());
+              }}
+              icon={<EditOutlined />}
+            />
+          </Tooltip>
         </Space>
       )
     },
   ];
 
-  return <>
+  return <Card
+    style={{margin: '10px', textAlign: 'left'}}
+    title={<h1>Employess</h1>}
+  >
+    <Row>
+      <Col span={24}>
+        <Space size={'middle'} style={{ float: 'right' }}>
+          <Tooltip title="Export">
+            <Button type='primary' shape='circle' icon={<ExportOutlined />} onClick={() => dispatch(openUploadModal())}/>
+          </Tooltip>
+          <Tooltip title="Refresh">
+            <Button type='primary' shape='circle' icon={<SyncOutlined />} onClick={() => dispatch(getEmployees())}/>
+          </Tooltip>
+        </Space>
+      </Col>
+    </Row>
+    <br/>
+    <Row>
+      <Col span={24}>
+        <Table
+          loading={loading}
+          bordered={true}
+          dataSource={employees}
+          columns={columns}
+          rowKey={'_id'}
+        />
+      </Col>
+    </Row>
+    <UploadModal />
     <DeleteModal />
     <UpdateForm />
-    <Table
-    loading={loading}
-      bordered={true}
-      dataSource={employees}
-      columns={columns}
-      rowKey={'_id'}
-    />
-  </>
+  </Card>
 }
 
 

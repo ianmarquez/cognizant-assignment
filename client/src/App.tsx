@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout } from 'antd'
+import { Col, Layout, Row } from 'antd'
 import Sidebar from './components/Sidebar';
 import './styles/App.css';
 import EmployeesTable from './pages/EmployeeTable';
@@ -14,7 +14,11 @@ const App: React.FC = () => (
       </Sider>
       <Layout>
         <Content>
-          <EmployeesTable/>
+          <Row>
+            <Col span={24}>
+              <EmployeesTable/>
+            </Col>
+          </Row>
         </Content>
       </Layout>
     </Layout>

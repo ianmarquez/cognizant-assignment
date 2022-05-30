@@ -3,7 +3,7 @@ import { Store } from 'antd/lib/form/interface';
 import React, { Dispatch } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Employee } from '../models/EmployeeModel';
-import { updateEmployee, EmployeeTableState } from '../redux/features/employeesSlice';
+import { updateEmployee, EmployeeTableState } from '../redux/features/employeeTableSlice';
 
 const UpdateForm: React.FC = () => {
   const dispatch: Dispatch<any> = useDispatch();
@@ -27,7 +27,7 @@ const UpdateForm: React.FC = () => {
       footer={null}
     >
       <Form
-        name="basic"
+        name="UpdateEmployee"
         wrapperCol={{ span: 24 }}
         initialValues={selectedEmployee as Store}
         onFinish={onFinish}
