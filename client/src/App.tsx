@@ -2,7 +2,7 @@ import React from 'react';
 import { Layout } from 'antd'
 import Sidebar from './components/Sidebar';
 import './styles/App.css';
-import Employees from './pages/Employees';
+import EmployeesTable from './pages/EmployeeTable';
 
 const { Sider, Content } = Layout;
 
@@ -14,7 +14,7 @@ const App: React.FC = () => (
       </Sider>
       <Layout>
         <Content>
-          <Employees/>
+          <EmployeesTable/>
         </Content>
       </Layout>
     </Layout>

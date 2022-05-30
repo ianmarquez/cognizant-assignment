@@ -20,5 +20,6 @@
   "bugs": {
     "url": "https://github.com/ianmarquez/MERN-Template/issues"
   },
-  "homepage": "https://github.com/ianmarquez/MERN-Template#readme"
+  "homepage": "https://github.com/ianmarquez/MERN-Template#readme",
+  "dependencies": {}
 }

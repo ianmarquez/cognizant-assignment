@@ -1,6 +1,29 @@
 const Employee = require('../models/employee-model');
 
-createEmployee = async (req, res) => {
+const createBatchEmployees = async (req, res) => {
+  const { body } = req;
+  try {
+    if (!body) throw new Error('Invalid Parameter');
+    const promiseArr = [];
+    body.forEach((employeeReqBody) => {
+      const employee = new Employee(employeeReqBody);
+      if (!employee) throw new Error('Invalid Parameters');
+      promiseArr.push(employee.save());
+    });
+    await Promise.all(promiseArr);
+    return res.status(201).json({
+      success: true,
+      message: 'Employees Created!',
+    })
+  } catch (err) {
+    res.status(400).send({
+      success: false,
+      message: JSON.stringify(err),
+    });
+  }
+}
+
+const createEmployee = async (req, res) => {
   const { body } = req;
   try {
     if (!body) throw new Error('Invalid Parameter');
@@ -21,7 +44,7 @@ createEmployee = async (req, res) => {
   }
 };
 
-updateEmployee = async (req, res) => {
+const updateEmployee = async (req, res) => {
   const { body, params } = req;
   let statusCode = 400;
   let message = null;
@@ -61,7 +84,7 @@ updateEmployee = async (req, res) => {
   }
 }
 
-deleteEmployee = async (req, res) => {
+const deleteEmployee = async (req, res) => {
   await Employee.findOneAndDelete({ _id: req.params.id }, (err, employee) => {
     if (err) {
       return res.status(400).json({ success: false, error: err })
@@ -75,7 +98,7 @@ deleteEmployee = async (req, res) => {
   }).catch(err => console.log(err))
 }
 
-getEmployeeById = async (req, res) => {
+const getEmployeeById = async (req, res) => {
   await Employee.findOne({ _id: req.params.id }, (err, employee) => {
     if (err) {
       return res.status(400).json({ success: false, error: err })
@@ -90,7 +113,7 @@ getEmployeeById = async (req, res) => {
   }).catch(err => console.log(err))
 }
 
-getEmployees = async (req, res) => {
+const getEmployees = async (req, res) => {
   await Employee.find({}, (err, employees) => {
       if (err) {
           return res.status(400).json({ success: false, error: err })
@@ -105,6 +128,7 @@ getEmployees = async (req, res) => {
 }
 
 module.exports = {
+  createBatchEmployees,
   createEmployee,
   updateEmployee,
   deleteEmployee,
