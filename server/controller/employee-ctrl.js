@@ -2,6 +2,62 @@ const Employee = require('../models/employee-model');
 const parse = require('csv-parse').parse
 const fs = require('fs');
 
+const parseCsvAsPromise = (data) => {
+  return new Promise((resolve, reject) => {
+    parse(data, (err, response) => {
+      if (err) reject(err);
+      resolve(response);
+    })
+  })
+}
+
+const findEmployeeAsPromise = (property, value) => {
+  return new Promise((resolve, reject) => {
+    Employee.findOne({ [property]: value }, (err, response) => {
+      if (err) reject(err);
+      resolve(response);
+    });
+  })
+}
+
+const shouldTransact = async ({
+  full_name,
+  _id,
+  salary,
+  login_id,
+  profile_pic,
+}) => {
+  let shouldUpdate = false;
+  const [
+    employeeById,
+    employeeByLoginId,
+  ] = await Promise.all([
+    findEmployeeAsPromise('_id', _id),
+    findEmployeeAsPromise('login_id', login_id),
+  ]);
+  if (employeeById?._id === _id) shouldUpdate = true;
+  if (employeeById && employeeByLoginId?._id !== _id) {
+    throw new Error(`login_id:${employeeByLoginId.login_id} is already used. `);
+  }
+
+  if (shouldUpdate) {
+    employeeById.full_name = full_name;
+    employeeById.login_id = login_id;
+    employeeById.salary = salary;
+    employeeById.profile_pic = profile_pic;
+    return () => employeeById.save()
+  } else {
+    const employee = new Employee({
+      full_name,
+      _id,
+      salary,
+      login_id,
+      profile_pic,
+    });
+    return () => employee.save();
+  }
+}
+
 const createBatchEmployees = async (req, res) => {
   const { body } = req;
   try {
@@ -30,14 +86,35 @@ const createBatchEmployeesV2 = async (req, res) => {
   try {
     if (!file) throw new Error('Invalid Parameter');
     const data = fs.readFileSync(file.path);
-    parse(data, (err, records) => {
-      if (err) throw err;
-      res.status(200).json({ success: true, records });
+    const records = await parseCsvAsPromise(data);
+    const promiseArr = [];
+    records.forEach(([
+      _id,
+      login_id,
+      full_name,
+      salary,
+      profile_pic,
+    ]) => {
+      if (_id.indexOf('#') !== 0) {
+        promiseArr.push(shouldTransact({
+          _id,
+          login_id,
+          full_name,
+          salary,
+          profile_pic,
+        }));
+      }
+    })
+    const results = await Promise.all(promiseArr);
+    results.forEach((transaction) => {
+      transaction();
     });
+    res.status(200).json({ success: true });
   } catch (err) {
+    console.log(err);
     res.status(400).send({
       success: false,
-      message: JSON.stringify(err),
+      message: err.message || err.stack,
     });
   }
 }
@@ -114,7 +191,7 @@ const deleteEmployee = async (req, res) => {
         .json({ success: false, error: `Employee not found` })
     }
     return res.status(200).json({ success: true, data: employee })
-  }).catch(err => console.log(err))
+  }).catch(err => console.error(err));
 }
 
 const getEmployeeById = async (req, res) => {
@@ -122,28 +199,45 @@ const getEmployeeById = async (req, res) => {
     if (err) {
       return res.status(400).json({ success: false, error: err })
     }
-
     if (!employee) {
       return res
         .status(404)
         .json({ success: false, error: `Employee not found` })
     }
     return res.status(200).json({ success: true, data: employee })
-  }).catch(err => console.log(err))
+  }).catch(err => console.error(err));
 }
 
 const getEmployees = async (req, res) => {
   await Employee.find({}, (err, employees) => {
-      if (err) {
-          return res.status(400).json({ success: false, error: err })
-      }
-      if (!employees.length) {
-          return res
-              .status(404)
-              .json({ success: false, error: `Employee not found` })
-      }
-      return res.status(200).json({ success: true, data: employees })
-  }).catch(err => console.log(err))
+    if (err) {
+      return res.status(400).json({ success: false, error: err })
+    }
+    if (!employees.length) {
+      return res
+        .status(404)
+        .json({ success: false, error: `Employee not found` })
+    }
+    return res.status(200).json({ success: true, data: employees })
+  }).catch(err => console.error(err));
+}
+
+const findByLoginId = async (req, res) => {
+  const { query: { login_id } } = req;
+  try {
+    if (!login_id) throw new Error('LoginId is required');
+    Employee.findOne({ login_id }, async (err, employee) => {
+      if (err) throw err;
+      if (!employee) res.status(404).json({ success: false, message: `User with login_id:${login_id} not found.` })
+      return res.status(200).json({ success: true, data: employee })
+    });
+  } catch (err) {
+    let statusCode = 400;
+    res.status(statusCode).send({
+      success: false,
+      message: JSON.stringify(err),
+    });
+  }
 }
 
 module.exports = {
@@ -154,4 +248,5 @@ module.exports = {
   deleteEmployee,
   getEmployees,
   getEmployeeById,
+  findByLoginId,
 }

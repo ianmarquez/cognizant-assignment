@@ -59,7 +59,7 @@ export const updateEmployee = createAsyncThunk(
 );
 
 const createSalaryFilters = (salaries: Array<number>): SalaryFilter[] => {
-  const salaryArr = salaries.sort();
+  const salaryArr = salaries.sort((a,b) => a - b);
   const INCREMENT = 500;
   const floor = Math.round(salaryArr[0]/1000)*1000;
   const ceiling = Math.round(salaryArr[salaryArr.length - 1]/1000)*1000;
@@ -112,6 +112,12 @@ const employeeTableSlice = createSlice({
     },
     closeUploadModal(state) {
       state.uploadModalVisible = false;
+    },
+    startLoading(state) {
+      state.isLoading = true;
+    },
+    stopLoading(state) {
+      state.isLoading = false;
     }
   },
   extraReducers: {
@@ -184,5 +190,7 @@ export const {
   closeUpdateModal,
   closeUploadModal,
   openUploadModal,
+  startLoading,
+  stopLoading,
 } = employeeTableSlice.actions
 export default employeeTableSlice.reducer;

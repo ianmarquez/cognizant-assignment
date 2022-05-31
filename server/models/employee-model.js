@@ -6,9 +6,9 @@ const Employee = new Schema(
     {
       _id: { type: String, required: true },
       full_name: { type: String, required: true },
-      login_id: { type: String, required: true },
+      login_id: { type: String, required: true, unique: true },
       salary: { type: Number, required: true },
-      profile_pic: { type: String, required: true },
+      profile_pic: { type: String },
     },
     { timestamps: true },
 )

@@ -12,6 +12,7 @@ router.post('/employee', EmployeeController.createEmployee)
 router.put('/employee/:id', EmployeeController.updateEmployee)
 router.delete('/employee/:id', EmployeeController.deleteEmployee)
 router.get('/employee/:id', EmployeeController.getEmployeeById)
+router.get('/employee', EmployeeController.findByLoginId);
 router.get('/employees', EmployeeController.getEmployees)
 router.post('/employees', EmployeeController.createBatchEmployees);
 router.post('/employees/upload', upload.single('file'), EmployeeController.createBatchEmployeesV2);

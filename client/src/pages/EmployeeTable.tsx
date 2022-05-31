@@ -1,5 +1,5 @@
 import React, { Dispatch, useEffect } from 'react';
-import { Table, Space, Button, Avatar, Row, Col, Card, Tooltip } from 'antd';
+import { Table, Space, Button, Avatar, Row, Col, Card, Tooltip, Pagination } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import { Employee } from '../models/EmployeeModel';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,13 +32,15 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
     {
       dataIndex: 'profile_pic',
       key: 'profile_pic',
-      width: 30,
       fixed: 'left',
+      width: 40,
       render: (_: any, { profile_pic }: Employee): React.ReactElement =>  <Avatar src={profile_pic}/>,
     },
     {
       title: 'Id',
       dataIndex: '_id',
+      fixed: 'left',
+      width: 50,
       key: '_id',
       sorter: (a, b) => a._id.localeCompare(b._id)
     },
@@ -46,18 +48,21 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
       title: 'Name',
       dataIndex: 'full_name',
       key: 'full_name',
+      width: 300,
       sorter: (a, b) => a.full_name.localeCompare(b.full_name)
     },
     {
       title: 'Login',
       dataIndex: 'login_id',
       key: 'login_id',
+      width: 300,
       sorter: (a, b) => a.full_name.localeCompare(b.full_name)
     },
     {
       title: 'Salary',
       dataIndex: 'salary',
       key: 'salary',
+      width: 150,
       filters: salaryFilter,
       onFilter: (value: any, record:Employee) => {
         const [floor, ceiling] = value.split(',')
@@ -67,7 +72,7 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
     },
     {
       key: 'action',
-      width: 100,
+      width: 70,
       render: (_: any, record: Employee): React.ReactElement  => (
         <Space size="middle">
           <Tooltip title="Delete">
@@ -100,10 +105,9 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
 
   return <Card
     style={{margin: '10px', textAlign: 'left'}}
-    title={<h1>Employess</h1>}
-  >
-    <Row>
-      <Col span={24}>
+    title={<Row>
+      <Col span={12}><h1>Employees</h1></Col>
+      <Col span={12}>
         <Space size={'middle'} style={{ float: 'right' }}>
           <Tooltip title="Export">
             <Button type='primary' shape='circle' icon={<ExportOutlined />} onClick={() => dispatch(openUploadModal())}/>
@@ -113,8 +117,8 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
           </Tooltip>
         </Space>
       </Col>
-    </Row>
-    <br/>
+    </Row>}
+  >
     <Row>
       <Col span={24}>
         <Table
@@ -123,6 +127,8 @@ const EmployeeTable: React.FC  = (): React.ReactElement => {
           dataSource={employees}
           columns={columns}
           rowKey={'_id'}
+          scroll={{ x: 1500 }}
+          pagination={{ position: ['bottomRight'] }}
         />
       </Col>
     </Row>
