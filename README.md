@@ -1,4 +1,4 @@
-# MERN Stack Template
+# NHPC Software Engineer Exam
 
 This project is a template for Express and React with Typescript and MongoDB
 
@@ -7,7 +7,7 @@ This project is a template for Express and React with Typescript and MongoDB
 ## To Run
 ### `yarn build`
 
-Builds the docker images for deployment
+Builds the docker images for deployment.
 
 ### `yarn start`
 
